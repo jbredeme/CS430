@@ -1,2 +1,6 @@
 # CS430
-CS 430 Computer Graphics
+Description
+	
+	
+Usage
+	ppmrw 6|3 <input filename>.ppm <output filename>.ppm
