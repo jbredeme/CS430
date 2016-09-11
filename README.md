@@ -1,6 +1,6 @@
 # CS430
-Description
+<h3>Description</h3>
+		
 	
-	
-Usage
-	ppmrw 6|3 <input filename>.ppm <output filename>.ppm
+<h3>Usage</h3>
+	ppmrw {6|3} input_filename.ppm output_filename.ppm
