@@ -1,11 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * Pixel
+ *	Pixel is a structure that stores 3 bites with a value range of 0 to 255
+ */
 typedef struct Pixel {
-    unsigned char red, blue, green;
+    unsigned char red, green, blue;
 
 } Pixel;
 
+/**
+ * Image
+ * 	Image structure stores image information from a file according to the
+ * 	PPM Format Specification.
+ */
 typedef struct Image {
     char *magic_number;
     int width, height;
@@ -14,13 +23,21 @@ typedef struct Image {
 
 } Image;
 
+/**
+ * read_image
+ *	Takes in two pointers as parameters, a filename of a ppm image and image structure
+ * 	use to store data read in from the ppm image file.
+ */
 void read_image(char *filename, Image *image) {
 	
     char buffer[32];
 	FILE *fpointer;
+	int row, column;
 	
+	// Open file steam for reading
 	fpointer = fopen(filename, "r");
 	
+	// Check to see if file was opened successfully
 	if(fpointer == NULL) {
 		fprintf(stderr, "Error, unable to open file.\n");
 
@@ -36,7 +53,6 @@ void read_image(char *filename, Image *image) {
 		buffer[0] = fgetc(fpointer);
 		buffer[1] = fgetc(fpointer);
 
-
 		// Check the magic number
 		if((buffer[0] == 'P') && (buffer[1] == '6')) {
 			image->magic_number = "P6";
@@ -45,13 +61,16 @@ void read_image(char *filename, Image *image) {
 			image->magic_number = "P3";
 
 		} else {
-			 fprintf(stderr, "Error, unacceptable image format.\n");
+			 fprintf(stderr, "Error, unacceptable image format.\n Magic number must be P6 or P3");
 			 exit(-2);
 			 
 		}
 
 		// Ignore comments, whitespaces, carrage returns, and tabs
 		while(isdigit(buffer[0]) == 0){
+			// fgetpos(fpointer, &position);
+			
+			// If you run into a comment proceed till you reach an newline character
 			if(buffer[0] == '#') {
 				do {
 					buffer[0] = fgetc(fpointer);
@@ -60,13 +79,15 @@ void read_image(char *filename, Image *image) {
 
 			} else {
 				buffer[0] = fgetc(fpointer);
-
+				
 			}
 
 		}
 		
-		// Move back one character
+		// Move back one character, tried using 
 		ungetc(buffer[0], fpointer);
+		// fsetpos(fpointer, &position);
+
 
 		// Read in <width> whitespace <height>
 		if(fscanf(fpointer, "%d %d", &image->width, &image->height) != 2) {
@@ -85,9 +106,30 @@ void read_image(char *filename, Image *image) {
 		// Allocated memory size for image data
 		image->image_data = malloc(sizeof(Pixel) * image->width * image->height);
 
-		// Read in image data
-		fread(image->image_data, sizeof(Pixel), image->width * image->height, fpointer);
-		
+		// If magic number is P6 fread, if magic number is P3 for loop
+		if(image->magic_number[1] == '6') {
+			// Read in raw image data
+			fread(image->image_data, sizeof(Pixel), image->width * image->height, fpointer);
+						
+		} else if(image->magic_number[1] == '3') {
+			// Read in ascii image data
+			for(row = 0; row < image->height; row++) {
+				for(column = 0; column < image->width; column++) {
+					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].red);
+					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].green);
+					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].blue);
+
+				}
+				
+			}
+			
+		} else {
+			printf("Magic number: %d\n", image->magic_number[1]);
+			fprintf(stderr, "Error, invalid magic number.\n");
+			exit(-2);
+			
+		}
+
 		// Close file stream flush all buffers
 		fclose(fpointer);	
 		
@@ -95,7 +137,11 @@ void read_image(char *filename, Image *image) {
 	
 }
 
-void write_image(char *filename, Image *image, char ) {
+/**
+ * write_image
+ * 	stuff
+ */
+void write_p6_image(char *filename, Image *image) {
 	FILE *fpointer;
 	fpointer = fopen(filename, "w");
 	
@@ -109,16 +155,63 @@ void write_image(char *filename, Image *image, char ) {
 	} else {
 		fprintf(fpointer, "%s\n", image->magic_number);
 		fprintf(fpointer, "%d %d\n", image->width, image->height);
-		fprintf(fpointer, "%d\n", image->max_color);
+		fprintf(fpointer, "%d", image->max_color);
+			
+		// ASCII code is a 7-bit code stored in a byte
 		fwrite(image->image_data, sizeof(Pixel), image->width * image->height, fpointer);
 		
 		// Close file stream flush all buffers
 		fclose(fpointer);
 		
+		
 	}
 	
 }
 
+/**
+ * write_image
+ * 	stuff
+ */
+void write_p3_image(char *filename, Image *image) {
+	FILE *fpointer;
+	fpointer = fopen(filename, "w");
+	int row, column;
+	
+	if(fpointer == NULL) {
+		fprintf(stderr, "Error, unable to open file.\n");
+
+		// Close file stream flush all buffers
+		fclose(fpointer);
+		exit(-1);
+		 
+	} else {
+		fprintf(fpointer, "%s\n", image->magic_number);
+		fprintf(fpointer, "%d %d\n", image->width, image->height);
+		fprintf(fpointer, "%d\n", image->max_color);
+		
+		// Read in ascii image data
+		for(row = 0; row < image->height; row++) {
+			for(column = 0; column < image->width; column++) {
+				fprintf(fpointer, "%s ", &image->image_data[(image->width) * row + column].red);
+				fprintf(fpointer, "%s ", &image->image_data[(image->width) * row + column].green);
+				fprintf(fpointer, "%s ", &image->image_data[(image->width) * row + column].blue);
+		
+			}
+			
+		}
+		
+		// Close file stream flush all buffers
+		fclose(fpointer);
+		
+		
+	}
+	
+}
+
+/**
+ * main
+ *	Do I need to say more?
+ */
 int main(int argc, char *argv[]) {
 
 	Image *ppm_image;
@@ -132,11 +225,11 @@ int main(int argc, char *argv[]) {
 	} else {
 		if(atoi(argv[1]) == 6) {
 			read_image(argv[2], ppm_image);
-			write_image(argv[3], ppm_image);
+			write_p6_image(argv[3], ppm_image);
 
 		} else if(atoi(argv[1]) == 3){
 			read_image(argv[2], ppm_image);
-			write_image(argv[3], ppm_image);	
+			write_p3_image(argv[3], ppm_image);	
 			
 		} else {
 			fprintf(stderr, "Error, incorrect PPM format type.\n");
