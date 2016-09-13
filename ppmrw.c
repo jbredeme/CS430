@@ -114,7 +114,7 @@ void read_image(char *filename, Image *image) {
 		} else if(image->magic_number[1] == '3') {
 			// Read in ascii image data
 			for(row = 0; row < image->height; row++) {
-				for(column = 0; column < image->width; column++) {
+				for(column = 0; column < image->width; column++) {					
 					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].red);
 					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].green);
 					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].blue);
@@ -143,7 +143,7 @@ void read_image(char *filename, Image *image) {
  */
 void write_p6_image(char *filename, Image *image) {
 	FILE *fpointer;
-	fpointer = fopen(filename, "w");
+	fpointer = fopen(filename, "wb");
 	
 	if(fpointer == NULL) {
 		fprintf(stderr, "Error, unable to open file.\n");
@@ -153,9 +153,9 @@ void write_p6_image(char *filename, Image *image) {
 		exit(-1);
 		 
 	} else {
-		fprintf(fpointer, "%s\n", image->magic_number);
+		fprintf(fpointer, "%s\n", "P6");
 		fprintf(fpointer, "%d %d\n", image->width, image->height);
-		fprintf(fpointer, "%d", image->max_color);
+		fprintf(fpointer, "%d\n", image->max_color);
 			
 		// ASCII code is a 7-bit code stored in a byte
 		fwrite(image->image_data, sizeof(Pixel), image->width * image->height, fpointer);
@@ -170,12 +170,13 @@ void write_p6_image(char *filename, Image *image) {
 
 /**
  * write_image
- * 	stuff
+ * 	Get the integer, convert that interger to a string then write the string to the file
  */
 void write_p3_image(char *filename, Image *image) {
 	FILE *fpointer;
 	fpointer = fopen(filename, "w");
 	int row, column;
+	char str[15];
 	
 	if(fpointer == NULL) {
 		fprintf(stderr, "Error, unable to open file.\n");
@@ -185,16 +186,19 @@ void write_p3_image(char *filename, Image *image) {
 		exit(-1);
 		 
 	} else {
-		fprintf(fpointer, "%s\n", image->magic_number);
+		fprintf(fpointer, "%s\n", "P3");
 		fprintf(fpointer, "%d %d\n", image->width, image->height);
 		fprintf(fpointer, "%d\n", image->max_color);
 		
 		// Read in ascii image data
 		for(row = 0; row < image->height; row++) {
 			for(column = 0; column < image->width; column++) {
-				fprintf(fpointer, "%s ", &image->image_data[(image->width) * row + column].red);
-				fprintf(fpointer, "%s ", &image->image_data[(image->width) * row + column].green);
-				fprintf(fpointer, "%s ", &image->image_data[(image->width) * row + column].blue);
+				sprintf(str, "%d", image->image_data[(image->width) * row + column].red);
+				fprintf(fpointer, "%s\n", str);
+				sprintf(str, "%d", image->image_data[(image->width) * row + column].green);
+				fprintf(fpointer, "%s\n", str);
+				sprintf(str, "%d", image->image_data[(image->width) * row + column].blue);
+				fprintf(fpointer, "%s\n", str);				
 		
 			}
 			
