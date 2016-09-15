@@ -91,8 +91,6 @@ void read_image(char *filename, Image *image) {
 
 		// Ignore comments, whitespaces, carrage returns, and tabs
 		while(isdigit(buffer[0]) == 0){
-			// fgetpos(fpointer, &position);
-			
 			// If you run into a comment proceed till you reach an newline character
 			if(buffer[0] == '#') {
 				do {
@@ -220,7 +218,7 @@ void write_p6_image(char *filename, Image *image) {
 /**
  * write_p3_image
  * 	This function writes raw data into ppm p3 ASCII format. Accepts two parameters, a pointer to a
- *  file stream and a poiner to an image structure. This function uses fprintf to write to the file stream
+ *  	file stream and a poiner to an image structure. This function uses fprintf to write to the file stream
  *	using a nested loop, converting integers to strings using sprintf then wites the string to an 
  * 	output.
  */
