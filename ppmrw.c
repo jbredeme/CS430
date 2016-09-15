@@ -36,7 +36,7 @@ typedef struct Image {
  * 	and its primary function to check color channels.
  */
 int check_rgb_bits(int red, int green, int blue, int max, int min) {
-	if(((blue > max))){
+	if(((red > max) || (red < min)) || ((green > max) || (green < min)) || ((blue > max) || (blue < min))){
 		return(1);
 		
 	} else {
