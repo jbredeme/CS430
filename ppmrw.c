@@ -1,9 +1,16 @@
+/**
+ * Author: Jarid Bredemeier
+ * Date: September 07, 2016
+ * CS 430 Computer Graphics
+ * Project 1 - Images
+ */
+ 
 #include <stdio.h>
 #include <stdlib.h>
 
 /**
  * Pixel
- *	Pixel is a structure that stores 3 bites with a value range of 0 to 255
+ *	Pixel is a structure that stores 3 bites with a value range of 0 to 255.
  */
 typedef struct Pixel {
     unsigned char red, green, blue;
@@ -24,6 +31,22 @@ typedef struct Image {
 } Image;
 
 /**
+ * check_rgb_bits
+ * 	This function checks if three integer values against a maximum and minimum values
+ * 	and its primary function to check color channels.
+ */
+int check_rgb_bits(int red, int green, int blue, int max, int min) {
+	if(((blue > max))){
+		return(1);
+		
+	} else {
+		return(0);
+		
+	}
+		
+}
+
+/**
  * read_image
  *	Takes in two pointers as parameters, a filename of a ppm image and image structure
  * 	use to store data read in from the ppm image file.
@@ -32,7 +55,7 @@ void read_image(char *filename, Image *image) {
 	
     char buffer[32];
 	FILE *fpointer;
-	int row, column;
+	int row, column, red, green, blue;
 	
 	// Open file steam for reading
 	fpointer = fopen(filename, "r");
@@ -101,7 +124,14 @@ void read_image(char *filename, Image *image) {
 			 fprintf(stderr, "Error, invalid maximum color value.\n");
 			 exit(-2);
 			 
-		}	
+		}
+
+		// Validate 8-bit color value
+		if((image->max_color > 255) || (image->max_color < 0)) {
+			 fprintf(stderr, "Error, maximum color value is not 8-bits per channel.\n");
+			 exit(-2);
+			 
+		}
 
 		// Allocated memory size for image data
 		image->image_data = malloc(sizeof(Pixel) * image->width * image->height);
@@ -115,16 +145,34 @@ void read_image(char *filename, Image *image) {
 			// Read in ascii image data
 			for(row = 0; row < image->height; row++) {
 				for(column = 0; column < image->width; column++) {					
+					/*
 					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].red);
 					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].green);
 					fscanf(fpointer, "%d", &image->image_data[(image->width) * row + column].blue);
-
+					*/
+					
+					// Have to store values into int, larger values more then 1 byte will be truncated
+					// therefore making it not possible to check for color channels values over 8-bits	
+					fscanf(fpointer, "%d", &red);
+					fscanf(fpointer, "%d", &green);
+					fscanf(fpointer, "%d", &blue);					
+					
+					if(check_rgb_bits(red, green, blue, 255, 0) == 1) {
+						fprintf(stderr, "Error, channel color value is not 8-bits.\n");
+						exit(-3);
+						
+					} else {
+						image->image_data[(image->width) * row + column].red = red;
+						image->image_data[(image->width) * row + column].blue = green;
+						image->image_data[(image->width) * row + column].green = blue;
+						
+					}					
+		
 				}
 				
 			}
 			
 		} else {
-			printf("Magic number: %d\n", image->magic_number[1]);
 			fprintf(stderr, "Error, invalid magic number.\n");
 			exit(-2);
 			
@@ -138,8 +186,9 @@ void read_image(char *filename, Image *image) {
 }
 
 /**
- * write_image
- * 	stuff
+ * write_p6_image
+ * 	This function writes ASCII data into ppm p6 format. Accepts two parameters, a pointer to a
+ *  file stream and a poiner to an image structure. Writes to the file stream using fwrite. 
  */
 void write_p6_image(char *filename, Image *image) {
 	FILE *fpointer;
@@ -169,14 +218,18 @@ void write_p6_image(char *filename, Image *image) {
 }
 
 /**
- * write_image
- * 	Get the integer, convert that interger to a string then write the string to the file
+ * write_p3_image
+ * 	This function writes raw data into ppm p3 ASCII format. Accepts two parameters, a pointer to a
+ *  file stream and a poiner to an image structure. This function uses fprintf to write to the file stream
+ *	using a nested loop, converting integers to strings using sprintf then wites the string to an 
+ * 	output.
  */
 void write_p3_image(char *filename, Image *image) {
-	FILE *fpointer;
-	fpointer = fopen(filename, "w");
 	int row, column;
-	char str[15];
+	char buffer[32];
+	FILE *fpointer;
+	
+	fpointer = fopen(filename, "w");
 	
 	if(fpointer == NULL) {
 		fprintf(stderr, "Error, unable to open file.\n");
@@ -191,14 +244,16 @@ void write_p3_image(char *filename, Image *image) {
 		fprintf(fpointer, "%d\n", image->max_color);
 		
 		// Read in ascii image data
-		for(row = 0; row < image->height; row++) {
-			for(column = 0; column < image->width; column++) {
-				sprintf(str, "%d", image->image_data[(image->width) * row + column].red);
-				fprintf(fpointer, "%s\n", str);
-				sprintf(str, "%d", image->image_data[(image->width) * row + column].green);
-				fprintf(fpointer, "%s\n", str);
-				sprintf(str, "%d", image->image_data[(image->width) * row + column].blue);
-				fprintf(fpointer, "%s\n", str);				
+		for(row = 0; row < (image->height); row++) {
+			for(column = 0; column < (image->width); column++) {
+				sprintf(buffer, "%d", image->image_data[(image->width) * row + column].red);
+				fprintf(fpointer, "%s\n", buffer);
+				
+				sprintf(buffer, "%d", image->image_data[(image->width) * row + column].green);
+				fprintf(fpointer, "%s\n", buffer);
+				
+				sprintf(buffer, "%d", image->image_data[(image->width) * row + column].blue);
+				fprintf(fpointer, "%s\n", buffer);				
 		
 			}
 			
@@ -214,7 +269,10 @@ void write_p3_image(char *filename, Image *image) {
 
 /**
  * main
- *	Do I need to say more?
+ *	This program invokes the function calls to read_image, write_p6_image, and write_p3_image. Accepts 4 
+ *	input values passed into main function from the command line. The program name, ppm conversion number/type
+ *	this will be either 6 or 3 followed by the filename of the ppm image we want to convert. Lastly the
+ *	filename of the ppm image we want to output our data to.
  */
 int main(int argc, char *argv[]) {
 
@@ -223,9 +281,10 @@ int main(int argc, char *argv[]) {
 	
 	// Check number of inputs
 	if(argc != 4) {
-		fprintf(stderr, "Error, incorrect usage... type<space>input ppm file<space>output ppm file.\n");
+		fprintf(stderr, "Error, incorrect usage. Please enter:\n6 or 3<space>input_file_name.ppm<space>output_file_name.ppm.");
 		exit(-1);
-		
+	
+	// Verify if the conversion specifier is either 3 or 6, error if not.
 	} else {
 		if(atoi(argv[1]) == 6) {
 			read_image(argv[2], ppm_image);
@@ -236,7 +295,7 @@ int main(int argc, char *argv[]) {
 			write_p3_image(argv[3], ppm_image);	
 			
 		} else {
-			fprintf(stderr, "Error, incorrect PPM format type.\n");
+			fprintf(stderr, "Error, incorrect PPM conversion format type. Please enter in 6 or 3\n");
 			exit(-1);
 			
 		}		
