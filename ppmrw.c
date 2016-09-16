@@ -53,7 +53,7 @@ int check_rgb_bits(int red, int green, int blue, int max, int min) {
  */
 void read_image(char *filename, Image *image) {
 	
-    char buffer[32];
+    char buffer[64];
 	FILE *fpointer;
 	int row, column, red, green, blue;
 	
@@ -107,8 +107,6 @@ void read_image(char *filename, Image *image) {
 		
 		// Move back one character, tried using 
 		ungetc(buffer[0], fpointer);
-		// fsetpos(fpointer, &position);
-
 
 		// Read in <width> whitespace <height>
 		if(fscanf(fpointer, "%d %d", &image->width, &image->height) != 2) {
@@ -161,8 +159,8 @@ void read_image(char *filename, Image *image) {
 						
 					} else {
 						image->image_data[(image->width) * row + column].red = red;
-						image->image_data[(image->width) * row + column].blue = green;
-						image->image_data[(image->width) * row + column].green = blue;
+						image->image_data[(image->width) * row + column].green = green;
+						image->image_data[(image->width) * row + column].blue = blue;
 						
 					}					
 		
@@ -190,7 +188,7 @@ void read_image(char *filename, Image *image) {
  */
 void write_p6_image(char *filename, Image *image) {
 	FILE *fpointer;
-	fpointer = fopen(filename, "wb");
+	fpointer = fopen(filename, "w");
 	
 	if(fpointer == NULL) {
 		fprintf(stderr, "Error, unable to open file.\n");
@@ -224,7 +222,7 @@ void write_p6_image(char *filename, Image *image) {
  */
 void write_p3_image(char *filename, Image *image) {
 	int row, column;
-	char buffer[32];
+	char buffer[64];
 	FILE *fpointer;
 	
 	fpointer = fopen(filename, "w");
