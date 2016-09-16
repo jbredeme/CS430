@@ -84,7 +84,7 @@ void read_image(char *filename, Image *image) {
 			image->magic_number = "P3";
 
 		} else {
-			 fprintf(stderr, "Error, unacceptable image format.\n Magic number must be P6 or P3");
+			 fprintf(stderr, "Error, unacceptable image format while reading in the file.\n Magic number must be P6 or P3.\n");
 			 exit(-2);
 			 
 		}
@@ -110,7 +110,7 @@ void read_image(char *filename, Image *image) {
 
 		// Read in <width> whitespace <height>
 		if(fscanf(fpointer, "%d %d", &image->width, &image->height) != 2) {
-			 fprintf(stderr, "Error, invalid width and/or height.\n");
+			 fprintf(stderr, "Error, invalid width and/or height while reading in the file.\n");
 			 exit(-2);
 			 
 		}
@@ -124,11 +124,11 @@ void read_image(char *filename, Image *image) {
 
 		// Validate 8-bit color value
 		if((image->max_color > 255) || (image->max_color < 0)) {
-			 fprintf(stderr, "Error, maximum color value is not 8-bits per channel.\n");
+			 fprintf(stderr, "Error, input file's maximum color value is not 8-bits per channel.\n");
 			 exit(-2);
 			 
 		}
-
+		
 		// Allocated memory size for image data
 		image->image_data = malloc(sizeof(Pixel) * image->width * image->height);
 
@@ -154,7 +154,7 @@ void read_image(char *filename, Image *image) {
 					fscanf(fpointer, "%d", &blue);					
 					
 					if(check_rgb_bits(red, green, blue, 255, 0) == 1) {
-						fprintf(stderr, "Error, channel color value is not 8-bits.\n");
+						fprintf(stderr, "Error, a channel color value is not 8-bits.\n");
 						exit(-3);
 						
 					} else {
@@ -188,7 +188,7 @@ void read_image(char *filename, Image *image) {
  */
 void write_p6_image(char *filename, Image *image) {
 	FILE *fpointer;
-	fpointer = fopen(filename, "w");
+	fpointer = fopen(filename, "wb");
 	
 	if(fpointer == NULL) {
 		fprintf(stderr, "Error, unable to open file.\n");
@@ -215,10 +215,10 @@ void write_p6_image(char *filename, Image *image) {
 
 /**
  * write_p3_image
- * 	This function writes raw data into ppm p3 ASCII format. Accepts two parameters, a pointer to a
- *  	file stream and a poiner to an image structure. This function uses fprintf to write to the file stream
+ *	This function writes raw data into ppm p3 ASCII format. Accepts two parameters, a pointer to a
+ *	file stream and a poiner to an image structure. This function uses fprintf to write to the file stream
  *	using a nested loop, converting integers to strings using sprintf then wites the string to an 
- * 	output.
+ *	output.
  */
 void write_p3_image(char *filename, Image *image) {
 	int row, column;
@@ -273,11 +273,11 @@ void write_p3_image(char *filename, Image *image) {
 int main(int argc, char *argv[]) {
 
 	Image *ppm_image;
-	ppm_image = malloc(sizeof(Image));
+	ppm_image = (Image *)malloc(sizeof(Image));
 	
 	// Check number of inputs
 	if(argc != 4) {
-		fprintf(stderr, "Error, incorrect usage. Please enter:\n6 or 3<space>input_file_name.ppm<space>output_file_name.ppm.");
+		fprintf(stderr, "Error, incorrect usage. Please enter:\n6 or 3<space>input_file_name.ppm<space>output_file_name.ppm.\n");
 		exit(-1);
 	
 	// Verify if the conversion specifier is either 3 or 6, error if not.
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
 			write_p3_image(argv[3], ppm_image);	
 			
 		} else {
-			fprintf(stderr, "Error, incorrect PPM conversion format type. Please enter in 6 or 3\n");
+			fprintf(stderr, "Error, incorrect PPM conversion format type. Must be 6 or 3.\n");
 			exit(-1);
 			
 		}		
