@@ -134,6 +134,9 @@ void read_image(char *filename, Image *image) {
 
 		// If magic number is P6 fread, if magic number is P3 for loop
 		if(image->magic_number[1] == '6') {
+			// Advance the file pointer by one char
+			fgetc(fpointer);
+			
 			// Read in raw image data
 			fread(image->image_data, sizeof(Pixel), image->width * image->height, fpointer);
 						
