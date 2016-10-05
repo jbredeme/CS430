@@ -1,8 +1,8 @@
-# Project 1 - Images
-<h4>CS 430 Computer Graphics</h4>
-<h5>Description</h5>
-	This program reads in a Portable PixMap (PPM) image with either a P3 (ASCII) or a P6 (Binary) magic number 
-	and converts the image's data between the two.	
-	
-<h5>Usage</h5>
-	ppmrw {6|3} input_filename.ppm output_filename.ppm
+# Pixmap
+
+This program reads in a Portable PixMap (PPM) image in either P3 (ASCII) or P6 (Binary) format then stores the image data into a image buffer. Then performs operations on the image header and converts binary data into ascii or ascii into binary depending on the magic number conversion.	
+
+## Usage
+```c
+ppmrw 6|3 input.ppm output.ppm
+```
