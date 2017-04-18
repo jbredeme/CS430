@@ -6,3 +6,11 @@ This program reads in a Portable PixMap (PPM) image in either P3 (ASCII) or P6 (
 ```c
 ppmrw 6|3 input.ppm output.ppm
 ```
+
+## Built With
+* [Cygwin](https://cygwin.com/index.html) - 64-bit versions of Windows
+* gcc (GCC) 5.4.0
+* Windows 10 Professional
+
+## Author
+* **Jarid Bredemeier** - *Initial work*
