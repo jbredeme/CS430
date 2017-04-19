@@ -8,7 +8,7 @@ ppmrw 6|3 input.ppm output.ppm
 ```
 
 ## Built With
-* [Cygwin](https://cygwin.com/index.html) - 64-bit versions for Windows
+* [Cygwin](https://cygwin.com/index.html) - 64-bit version for Windows
 * GNU Compiler Collection (GCC) 5.4.0
 * Windows 10 Professional
 
